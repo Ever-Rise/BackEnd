@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+  data:
+    redis:
+      url: ${REDIS_URL}
+
+logging:
+  level:
+    root: WARN
+
+springdoc:
+  swagger-ui:
+    enabled: false
+
