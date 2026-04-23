@@ -18,3 +18,12 @@ Este diretorio concentra o manual tecnico e operacional do backend EVERRISE.
 - `docs/manual-desenvolvimento-manutencao.md`: como criar funcionalidades novas com seguranca.
 - `docs/manual-operacao.md`: configuracao de ambiente, execucao, monitoramento e correcoes comuns.
 
+## Roteiro de consolidacao tecnica
+Use os manuais em conjunto para organizar as proximas entregas:
+
+1. Arquitetura: validar responsabilidades e limites por camada.
+2. Fluxos: revisar regras de negocio ponta a ponta.
+3. API: estabilizar contratos e tratar compatibilidade.
+4. Manutencao: aplicar checklist de PR e definicao de pronto.
+5. Operacao: fechar setup de ambientes e runbook de incidentes.
+
