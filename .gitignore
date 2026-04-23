@@ -1,5 +1,68 @@
+# Build artifacts
 target/
+build/
+out/
+
+# IDE and editor
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.iml
+
+# Logs and temporary files
 *.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+*.secrets
+
+# Local Spring configuration with sensitive values
+application-local.yml
+application-local.yaml
+application-secrets.yml
+application-secrets.yaml
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-secrets.yml
+src/main/resources/application-secrets.yaml
+
+# Keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+
+# Data exports and backups
+db-dumps/
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+*.backup
+
+# Local runtime data
+data/
+uploads/
+storage/
+
+# Coverage and reports
+coverage/
+*.lcov
+*.exec
