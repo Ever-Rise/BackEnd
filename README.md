@@ -9,7 +9,7 @@ Consolidar uma base tecnica segura e evolutiva para os proximos ciclos de desenv
 
 As versoes abaixo foram confirmadas no repositorio neste momento:
 
-- Java: 17 (`pom.xml` -> `java.version`)
+- Java: 25 (`pom.xml` -> `java.version`)
 - Spring Boot: 3.4.4 (`spring-boot-starter-parent`)
 - Build tool: Maven (projeto com `pom.xml`)
 - Banco no profile dev: MySQL (driver `com.mysql.cj.jdbc.Driver`)
@@ -21,11 +21,20 @@ As versoes abaixo foram confirmadas no repositorio neste momento:
 
 Ferramentas recomendadas para desenvolvimento local:
 
-- JDK 17
+- JDK 25
 - Maven 3.9+
 - MySQL 8+
 - Redis 7+
 - Broker MQTT (ex.: Eclipse Mosquitto 2.x)
+
+Validacao rapida do ambiente Java local:
+
+```bash
+java -version
+mvn -version
+```
+
+Esperado: ambos os comandos exibindo Java 25.
 
 ## Estrutura de Pastas
 
