@@ -6,6 +6,12 @@ import br.com.everrise.dto.response.ComandoPublicadoResponse;
 import br.com.everrise.dto.response.GuinchoStatusResponse;
 import br.com.everrise.dto.response.WebSocketEventResponse;
 import br.com.everrise.service.GuinchoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +32,15 @@ public class ControleController {
     private final GuinchoService guinchoService;
 
     @PostMapping("/{id}/comando")
+    @Operation(summary = "Enviar comando de movimentacao", description = "Publica um comando MQTT para o guincho realizar uma acao de movimentacao")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Comando publicado no broker MQTT com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ComandoPublicadoResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "409", description = "Guincho ocupado ou em emergencia")
+    })
     public ResponseEntity<ApiResponse<ComandoPublicadoResponse>> enviarComando(
+            @Parameter(description = "ID do guincho", example = "1", required = true)
             @PathVariable Long id,
             @Valid @RequestBody ComandoRequest request
     ) {
@@ -35,12 +49,29 @@ public class ControleController {
     }
 
     @GetMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<GuinchoStatusResponse>> status(@PathVariable Long id) {
+    @Operation(summary = "Obter status atual do guincho", description = "Retorna o status em tempo real do guincho (posicao, bateria, etc)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status carregado com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoStatusResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado")
+    })
+    public ResponseEntity<ApiResponse<GuinchoStatusResponse>> status(
+            @Parameter(description = "ID do guincho", example = "1", required = true)
+            @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(guinchoService.currentStatus(id), "Status carregado"));
     }
 
     @PostMapping("/{id}/emergencia")
-    public ResponseEntity<ApiResponse<WebSocketEventResponse>> emergencia(@PathVariable Long id) {
+    @Operation(summary = "Ativar emergencia", description = "Ativa o modo de emergencia do guincho, interrompendo operacoes em andamento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Emergencia ativada com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = WebSocketEventResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "409", description = "Guincho ja em estado de emergencia")
+    })
+    public ResponseEntity<ApiResponse<WebSocketEventResponse>> emergencia(
+            @Parameter(description = "ID do guincho", example = "1", required = true)
+            @PathVariable Long id) {
         WebSocketEventResponse event = guinchoService.ativarEmergencia(id);
         return ResponseEntity.ok(ApiResponse.ok(event, "Emergencia ativada"));
     }

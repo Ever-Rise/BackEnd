@@ -3,6 +3,11 @@ package br.com.everrise.controller;
 import br.com.everrise.dto.request.WebhookMercadoPagoRequest;
 import br.com.everrise.dto.response.ApiResponse;
 import br.com.everrise.service.PedidoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +36,12 @@ public class PagamentoController {
     private String webhookSecret;
 
     @PostMapping("/webhook")
+    @Operation(summary = "Webhook Mercado Pago", description = "Recebe notificacoes de pagamento do Mercado Pago. Sempre retorna 200 para evitar retries infinitos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Webhook processado ou ignorado por assinatura invalida",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao")
+    })
     public ResponseEntity<ApiResponse<String>> webhook(
             @Valid @RequestBody WebhookMercadoPagoRequest request,
             @RequestHeader(value = "X-Signature", required = false) String signature
