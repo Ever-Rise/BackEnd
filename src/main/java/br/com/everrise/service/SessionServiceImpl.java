@@ -29,6 +29,21 @@ public class SessionServiceImpl implements SessionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Guincho nao encontrado"));
 
         User currentUser = securityUtils.getCurrentUser();
+
+        // RN08/RN09: Validar limite de dispositivos por plano
+        if (currentUser.getPlano() != null && currentUser.getPlano().getMaxDispositivos() != null) {
+            // Contar guinchos já vinculados (ativos) que não sejam este
+            long guinchosAtivos = guinchoRepository.countByOwnerIdAndAtivoTrueAndIdNot(currentUser.getId(), guinchoId);
+            
+            if (guinchosAtivos >= currentUser.getPlano().getMaxDispositivos()) {
+                throw new RuntimeException(
+                    "Limite de dispositivos atingido para seu plano. " +
+                    "Máximo permitido: " + currentUser.getPlano().getMaxDispositivos() + 
+                    ", Atuais: " + guinchosAtivos
+                );
+            }
+        }
+
         guinchoSessionRepository.findFirstByGuinchoIdAndActiveTrue(guinchoId)
                 .ifPresent(active -> {
                     if (!active.getUser().getId().equals(currentUser.getId())) {

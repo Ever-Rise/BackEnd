@@ -5,6 +5,7 @@ import br.com.everrise.dto.response.ApiResponse;
 import br.com.everrise.dto.response.ComandoPublicadoResponse;
 import br.com.everrise.dto.response.GuinchoStatusResponse;
 import br.com.everrise.dto.response.WebSocketEventResponse;
+import br.com.everrise.security.ResourceOwnershipService;
 import br.com.everrise.service.GuinchoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ControleController {
 
     private final GuinchoService guinchoService;
+    private final ResourceOwnershipService ownershipService;
 
     @PostMapping("/{id}/comando")
     @Operation(summary = "Enviar comando de movimentacao", description = "Publica um comando MQTT para o guincho realizar uma acao de movimentacao")
@@ -37,6 +39,7 @@ public class ControleController {
             @ApiResponse(responseCode = "202", description = "Comando publicado no broker MQTT com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ComandoPublicadoResponse.class))),
             @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "409", description = "Guincho ocupado ou em emergencia")
     })
     public ResponseEntity<ApiResponse<ComandoPublicadoResponse>> enviarComando(
@@ -44,8 +47,13 @@ public class ControleController {
             @PathVariable Long id,
             @Valid @RequestBody ComandoRequest request
     ) {
-        ComandoPublicadoResponse response = guinchoService.enviarComando(id, request);
-        return ResponseEntity.accepted().body(ApiResponse.ok(response, "Comando publicado no broker MQTT"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            ComandoPublicadoResponse response = guinchoService.enviarComando(id, request);
+            return ResponseEntity.accepted().body(ApiResponse.ok(response, "Comando publicado no broker MQTT"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
 
     @GetMapping("/{id}/status")
@@ -67,12 +75,19 @@ public class ControleController {
             @ApiResponse(responseCode = "200", description = "Emergencia ativada com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = WebSocketEventResponse.class))),
             @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "409", description = "Guincho ja em estado de emergencia")
     })
     public ResponseEntity<ApiResponse<WebSocketEventResponse>> emergencia(
             @Parameter(description = "ID do guincho", example = "1", required = true)
             @PathVariable Long id) {
-        WebSocketEventResponse event = guinchoService.ativarEmergencia(id);
-        return ResponseEntity.ok(ApiResponse.ok(event, "Emergencia ativada"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            WebSocketEventResponse event = guinchoService.ativarEmergencia(id);
+            return ResponseEntity.ok(ApiResponse.ok(event, "Emergencia ativada"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
+}
 }

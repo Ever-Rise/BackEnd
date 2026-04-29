@@ -139,14 +139,25 @@ public class GuinchoServiceImpl implements GuinchoService {
         guinchoSessionRepository.findFirstByGuinchoIdAndUserIdAndActiveTrue(guinchoId, userId)
                 .orElseThrow(() -> new DeviceNotBoundException("Dispositivo nao vinculado ao guincho"));
 
-        if (!request.getAcao().isEmergency() && guincho.getStatus() == GuinchoStatus.EMERGENCIA) {
-            throw new EmergencyStateException("Guincho em emergencia, apenas EMERGENCIA_STOP permitido");
+        // RN04: Bloquear comandos em estado de emergência ou segurança
+        if (guincho.getStatus() == GuinchoStatus.EMERGENCIA) {
+            throw new EmergencyStateException(
+                "Guincho em estado de EMERGÊNCIA - reset manual necessário. Apenas operador pode restaurar."
+            );
         }
 
-        if (!request.getAcao().isEmergency()
-                && guincho.getStatus() != GuinchoStatus.PRONTO
-                && guincho.getStatus() != GuinchoStatus.EM_MOVIMENTO) {
-            throw new EmergencyStateException("Estado atual do guincho nao permite movimentacao");
+        if (guincho.getStatus() == GuinchoStatus.SAFETY_HOLD) {
+            throw new EmergencyStateException(
+                "Guincho em parada de segurança (SAFETY_HOLD) - obstáculo detectado. Verifique o equipamento e o ambiente."
+            );
+        }
+
+        // Permitir apenas comandos de emergência se em estado crítico
+        if (!request.getAcao().isEmergency() && 
+            (guincho.getStatus() != GuinchoStatus.PRONTO && 
+             guincho.getStatus() != GuinchoStatus.EM_MOVIMENTO &&
+             guincho.getStatus() != GuinchoStatus.PAUSADO)) {
+            throw new EmergencyStateException("Estado atual do guincho (" + guincho.getStatus() + ") não permite movimentação");
         }
 
         TelemetryRecord latest = telemetryRecordRepository.findFirstByGuinchoIdOrderByRecordedAtDesc(guinchoId).orElse(null);

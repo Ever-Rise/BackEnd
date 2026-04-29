@@ -6,6 +6,7 @@ import br.com.everrise.dto.response.ApiResponse;
 import br.com.everrise.dto.response.GuinchoResponse;
 import br.com.everrise.dto.response.GuinchoStatusResponse;
 import br.com.everrise.dto.response.TelemetryResponse;
+import br.com.everrise.security.ResourceOwnershipService;
 import br.com.everrise.service.GuinchoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,6 +40,7 @@ import java.util.List;
 public class GuinchoController {
 
     private final GuinchoService guinchoService;
+    private final ResourceOwnershipService ownershipService;
 
     @GetMapping
     @Operation(summary = "Listar guinchos acessiveis", description = "Retorna lista de todos os guinchos que o usuario tem acesso")
@@ -70,12 +72,18 @@ public class GuinchoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Status carregado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoStatusResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado")
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<GuinchoStatusResponse>> status(
             @Parameter(description = "ID do guincho", example = "1", required = true)
             @PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(guinchoService.findStatusCached(id), "Status carregado"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            return ResponseEntity.ok(ApiResponse.ok(guinchoService.findStatusCached(id), "Status carregado"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
 
     @GetMapping("/{id}/telemetry")
@@ -83,7 +91,8 @@ public class GuinchoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Telemetria carregada com sucesso",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TelemetryResponse.class)))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado")
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<List<TelemetryResponse>>> telemetry(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -95,7 +104,12 @@ public class GuinchoController {
             @Parameter(description = "Data/hora final do filtro (ISO 8601)")
             @RequestParam(required = false) LocalDateTime to
     ) {
-        return ResponseEntity.ok(ApiResponse.ok(guinchoService.findTelemetry(id, limit, from, to), "Telemetria carregada"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            return ResponseEntity.ok(ApiResponse.ok(guinchoService.findTelemetry(id, limit, from, to), "Telemetria carregada"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
 
     @PostMapping
@@ -117,25 +131,37 @@ public class GuinchoController {
             @ApiResponse(responseCode = "200", description = "Guincho atualizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoResponse.class))),
             @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "400", description = "Dados invalidos")
     })
     public ResponseEntity<ApiResponse<GuinchoResponse>> update(
             @Parameter(description = "ID do guincho", example = "1", required = true)
             @PathVariable Long id,
             @Valid @RequestBody UpdateGuinchoRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok(guinchoService.updateApelido(id, request), "Guincho atualizado"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            return ResponseEntity.ok(ApiResponse.ok(guinchoService.updateApelido(id, request), "Guincho atualizado"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Desativar guincho", description = "Realiza soft delete de um guincho (marca como inativo)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Guincho desativado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado")
+            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<Void>> delete(
             @Parameter(description = "ID do guincho", example = "1", required = true)
             @PathVariable Long id) {
-        guinchoService.softDelete(id);
-        return ResponseEntity.ok(ApiResponse.ok(null, "Guincho desativado com sucesso"));
+        try {
+            ownershipService.validarAcessoGuincho(id);
+            guinchoService.softDelete(id);
+            return ResponseEntity.ok(ApiResponse.ok(null, "Guincho desativado com sucesso"));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
+        }
     }
 }

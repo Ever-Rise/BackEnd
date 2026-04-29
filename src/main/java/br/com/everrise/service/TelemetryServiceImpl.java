@@ -2,6 +2,8 @@ package br.com.everrise.service;
 
 import br.com.everrise.domain.entity.Guincho;
 import br.com.everrise.domain.entity.TelemetryRecord;
+import br.com.everrise.domain.enums.GuinchoStatus;
+import br.com.everrise.domain.enums.TipoAlerta;
 import br.com.everrise.dto.response.TelemetryResponse;
 import br.com.everrise.exception.ResourceNotFoundException;
 import br.com.everrise.mapper.TelemetryMapper;
@@ -30,6 +32,10 @@ public class TelemetryServiceImpl implements TelemetryService {
     private final TelemetryMapper telemetryMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final AlertaService alertaService;
+
+    private static final double FSR_THRESHOLD_CRITICO = 800.0;
+    private static final int BATERIA_LIMIAR_BAIXA = 20;
 
     @Override
     @Transactional
@@ -48,9 +54,71 @@ public class TelemetryServiceImpl implements TelemetryService {
                 .build();
 
         telemetryRecordRepository.save(record);
+
+        // RN04: Implementar bloqueio automático de movimento
+        // Obstacle detected ou FSR acima do threshold ou anomalia
+        if (record.getObstacleDetected() || 
+            (record.getFsrReading() != null && record.getFsrReading() > FSR_THRESHOLD_CRITICO) ||
+            record.getAnomalyAlert()) {
+            
+            handleSafetyEvent(guincho, record);
+        }
+
+        // Verificar bateria baixa
+        if (record.getBatteryLevel() != null && record.getBatteryLevel() < BATERIA_LIMIAR_BAIXA) {
+            handleLowBatteryAlert(guincho, record);
+        }
+
+        // Verificar conexão fraca
+        if (record.getConnectionQuality() != null && record.getConnectionQuality() < 30) {
+            handleWeakConnectionAlert(guincho, record);
+        }
+
         TelemetryResponse response = telemetryMapper.toResponse(record);
         redisTemplate.opsForValue().set(latestKey(guinchoId), response, 30, TimeUnit.SECONDS);
         messagingTemplate.convertAndSend("/topic/telemetry/" + guinchoId, response);
+    }
+
+    private void handleSafetyEvent(Guincho guincho, TelemetryRecord record) {
+        // Se está em movimento, pausar automaticamente (SAFETY_HOLD)
+        if (guincho.getStatus() == GuinchoStatus.EM_MOVIMENTO || 
+            guincho.getStatus() == GuinchoStatus.PAUSADO) {
+            
+            guincho.setStatus(GuinchoStatus.SAFETY_HOLD);
+            guinchoRepository.save(guincho);
+
+            // Gerar alerta apropriado
+            if (record.getObstacleDetected()) {
+                alertaService.gerarAlerta(TipoAlerta.OBSTACULO, guincho.getId(), 
+                    "Obstáculo detectado - equipamento pausado automaticamente");
+            } else if (record.getFsrReading() != null && record.getFsrReading() > FSR_THRESHOLD_CRITICO) {
+                alertaService.gerarAlerta(TipoAlerta.SOBRECARGA, guincho.getId(), 
+                    "Sobrecarga detectada (FSR: " + record.getFsrReading() + ") - equipamento pausado automaticamente");
+            } else if (record.getAnomalyAlert()) {
+                alertaService.gerarAlerta(TipoAlerta.ANOMALIA, guincho.getId(), 
+                    "Anomalia detectada - equipamento pausado automaticamente");
+            }
+
+            // Notificar via WebSocket
+            messagingTemplate.convertAndSend("/topic/guincho/" + guincho.getId() + "/safety", 
+                Map.of(
+                    "event", "SAFETY_HOLD_ATIVADO",
+                    "status", guincho.getStatus(),
+                    "mensagem", "Equipamento em parada de segurança - requer verificação"
+                ));
+        }
+    }
+
+    private void handleLowBatteryAlert(Guincho guincho, TelemetryRecord record) {
+        // Gerar alerta mas não pausar (apenas aviso)
+        alertaService.gerarAlerta(TipoAlerta.BATERIA_BAIXA, guincho.getId(), 
+            "Bateria baixa: " + record.getBatteryLevel() + "%");
+    }
+
+    private void handleWeakConnectionAlert(Guincho guincho, TelemetryRecord record) {
+        // Gerar alerta mas não pausar (apenas aviso)
+        alertaService.gerarAlerta(TipoAlerta.CONEXAO_FRACA, guincho.getId(), 
+            "Conexão fraca: " + record.getConnectionQuality() + "%");
     }
 
     @Override
