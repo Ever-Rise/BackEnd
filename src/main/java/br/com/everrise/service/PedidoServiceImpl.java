@@ -28,6 +28,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final PedidoMapper pedidoMapper;
     private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
+    private final TokenDescontoService tokenDescontoService;
 
     @Override
     @Transactional
@@ -36,13 +37,38 @@ public class PedidoServiceImpl implements PedidoService {
         Plano plano = planoRepository.findById(request.getPlanoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Plano nao encontrado"));
 
+        // Inicializar desconto
+        BigDecimal descontoAplicado = BigDecimal.ZERO;
+        
+        // RN10 (P07): Validar token JWT de desconto se fornecido
+        if (request.getTokenDesconto() != null && !request.getTokenDesconto().isBlank()) {
+            var validacao = tokenDescontoService.validarToken(
+                new br.com.everrise.dto.request.ValidarTokenDescontoRequest(
+                    request.getTokenDesconto(),
+                    request.getPlanoId()
+                )
+            );
+
+            if (!validacao.getValido()) {
+                throw new RuntimeException("Token de desconto inválido: " + validacao.getMensagem());
+            }
+
+            // Calcular desconto
+            descontoAplicado = plano.getPreco()
+                    .multiply(validacao.getPercentualDesconto())
+                    .divide(new BigDecimal("100"));
+        }
+
+        // Calcular valor total com desconto
+        BigDecimal valorTotal = plano.getPreco().subtract(descontoAplicado);
+
         Pedido pedido = Pedido.builder()
                 .user(user)
                 .plano(plano)
                 .status(PedidoStatus.PENDENTE)
-                .valorTotal(plano.getPreco())
+                .valorTotal(valorTotal)
                 .cupomDesconto(request.getCupomDesconto())
-                .descontoAplicado(BigDecimal.ZERO)
+                .descontoAplicado(descontoAplicado)
                 .build();
 
         return pedidoMapper.toResponse(pedidoRepository.save(pedido));

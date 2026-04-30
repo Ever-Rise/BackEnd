@@ -11,7 +11,6 @@ import br.com.everrise.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,10 +35,10 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Realizar login", description = "Autentica um usuario com email e senha, retornando tokens JWT")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login realizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = br.com.everrise.dto.response.ApiResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Credenciais invalidas"),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciais invalidas"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao")
     })
     public ResponseEntity<br.com.everrise.dto.response.ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(br.com.everrise.dto.response.ApiResponse.ok(authService.login(request), "Login realizado com sucesso"));
@@ -48,10 +47,10 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuario", description = "Cria uma nova conta de usuario com email e senha")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cadastro realizado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cadastro realizado com sucesso",
                     content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "409", description = "Email ja existe"),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email ja existe"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos")
     })
     public ResponseEntity<br.com.everrise.dto.response.ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(br.com.everrise.dto.response.ApiResponse.ok(authService.register(request), "Cadastro realizado com sucesso"));
@@ -60,9 +59,9 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(summary = "Renovar token JWT", description = "Renova o access token usando o refresh token")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Token atualizado com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Refresh token invalido ou expirado"),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token atualizado com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token invalido ou expirado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos")
     })
     public ResponseEntity<br.com.everrise.dto.response.ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(br.com.everrise.dto.response.ApiResponse.ok(authService.refresh(request), "Token atualizado com sucesso"));
@@ -71,8 +70,8 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "Fazer logout", description = "Realiza o logout e invalida o token JWT")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Token invalido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Logout realizado com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token invalido")
     })
     public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
         authService.logout(authorization);
@@ -82,9 +81,9 @@ public class AuthController {
     @PostMapping("/device/bind")
     @Operation(summary = "Vincular dispositivo", description = "Vincula um guincho (dispositivo IoT) a uma sessao de usuario")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Dispositivo vinculado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Dispositivo nao encontrado"),
-            @ApiResponse(responseCode = "409", description = "Dispositivo ja vinculado a outro usuario")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Dispositivo vinculado com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Dispositivo nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Dispositivo ja vinculado a outro usuario")
     })
     public ResponseEntity<br.com.everrise.dto.response.ApiResponse<GuinchoSessionResponse>> bindDevice(@Valid @RequestBody BindDeviceRequest request) {
         return ResponseEntity.ok(br.com.everrise.dto.response.ApiResponse.ok(authService.bindDevice(request), "Dispositivo vinculado com sucesso"));
@@ -93,11 +92,12 @@ public class AuthController {
     @DeleteMapping("/device/unbind/{guinchoId}")
     @Operation(summary = "Desvincular dispositivo", description = "Remove a vinculacao de um guincho da sessao do usuario")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Dispositivo desvinculado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Dispositivo nao encontrado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Dispositivo desvinculado com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Dispositivo nao encontrado")
     })
     public ResponseEntity<br.com.everrise.dto.response.ApiResponse<Void>> unbindDevice(@PathVariable Long guinchoId) {
         authService.unbindDevice(guinchoId);
         return ResponseEntity.ok(br.com.everrise.dto.response.ApiResponse.ok(null, "Dispositivo desvinculado com sucesso"));
     }
 }
+

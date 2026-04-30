@@ -3,6 +3,7 @@ package br.com.everrise.security;
 import br.com.everrise.domain.entity.Guincho;
 import br.com.everrise.domain.entity.User;
 import br.com.everrise.repository.GuinchoRepository;
+import br.com.everrise.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

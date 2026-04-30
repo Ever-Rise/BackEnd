@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,9 +44,9 @@ public class GuinchoController {
     @GetMapping
     @Operation(summary = "Listar guinchos acessiveis", description = "Retorna lista de todos os guinchos que o usuario tem acesso")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Guinchos carregados com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Guinchos carregados com sucesso",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = GuinchoResponse.class)))),
-            @ApiResponse(responseCode = "401", description = "Token JWT invalido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token JWT invalido")
     })
     public ResponseEntity<ApiResponse<List<GuinchoResponse>>> findAll() {
         return ResponseEntity.ok(ApiResponse.ok(guinchoService.findAllAccessible(), "Guinchos carregados"));
@@ -56,10 +55,10 @@ public class GuinchoController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar guincho por ID", description = "Retorna os detalhes de um guincho especifico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Guincho encontrado",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Guincho encontrado",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
-            @ApiResponse(responseCode = "403", description = "Usuario sem acesso ao guincho")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Usuario sem acesso ao guincho")
     })
     public ResponseEntity<ApiResponse<GuinchoResponse>> findById(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -70,10 +69,10 @@ public class GuinchoController {
     @GetMapping("/{id}/status")
     @Operation(summary = "Obter status do guincho", description = "Retorna o status atual do guincho em tempo real (cached)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Status carregado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Status carregado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoStatusResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<GuinchoStatusResponse>> status(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -89,10 +88,10 @@ public class GuinchoController {
     @GetMapping("/{id}/telemetry")
     @Operation(summary = "Obter telemetria do guincho", description = "Retorna historico de telemetria com filtros opcionais por data")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Telemetria carregada com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Telemetria carregada com sucesso",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TelemetryResponse.class)))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<List<TelemetryResponse>>> telemetry(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -115,10 +114,10 @@ public class GuinchoController {
     @PostMapping
     @Operation(summary = "Cadastrar novo guincho", description = "Cria um novo guincho no sistema")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Guincho cadastrado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Guincho cadastrado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos"),
-            @ApiResponse(responseCode = "401", description = "Token JWT invalido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token JWT invalido")
     })
     public ResponseEntity<ApiResponse<GuinchoResponse>> create(@Valid @RequestBody CreateGuinchoRequest request) {
         GuinchoResponse created = guinchoService.create(request);
@@ -128,11 +127,11 @@ public class GuinchoController {
     @PatchMapping("/{id}")
     @Operation(summary = "Atualizar guincho", description = "Atualiza informacoes do guincho (apelido, etc)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Guincho atualizado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Guincho atualizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GuinchoResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado"),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos")
     })
     public ResponseEntity<ApiResponse<GuinchoResponse>> update(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -149,9 +148,9 @@ public class GuinchoController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Desativar guincho", description = "Realiza soft delete de um guincho (marca como inativo)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Guincho desativado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
-            @ApiResponse(responseCode = "403", description = "Acesso negado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Guincho desativado com sucesso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Guincho nao encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<ApiResponse<Void>> delete(
             @Parameter(description = "ID do guincho", example = "1", required = true)
@@ -165,3 +164,4 @@ public class GuinchoController {
         }
     }
 }
+

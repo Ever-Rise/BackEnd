@@ -1,12 +1,14 @@
 package br.com.everrise.controller;
 
 import br.com.everrise.dto.request.WebhookMercadoPagoRequest;
+import br.com.everrise.dto.request.ValidarTokenDescontoRequest;
 import br.com.everrise.dto.response.ApiResponse;
+import br.com.everrise.dto.response.ValidacaoTokenDescontoResponse;
 import br.com.everrise.service.PedidoService;
+import br.com.everrise.service.TokenDescontoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -15,6 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +36,7 @@ import java.util.HexFormat;
 public class PagamentoController {
 
     private final PedidoService pedidoService;
+    private final TokenDescontoService tokenDescontoService;
 
     @Value("${app.mercadopago.webhook-secret}")
     private String webhookSecret;
@@ -38,9 +44,9 @@ public class PagamentoController {
     @PostMapping("/webhook")
     @Operation(summary = "Webhook Mercado Pago", description = "Recebe notificacoes de pagamento do Mercado Pago. Sempre retorna 200 para evitar retries infinitos")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Webhook processado ou ignorado por assinatura invalida",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Webhook processado ou ignorado por assinatura invalida",
                     content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao")
     })
     public ResponseEntity<ApiResponse<String>> webhook(
             @Valid @RequestBody WebhookMercadoPagoRequest request,
@@ -53,6 +59,20 @@ public class PagamentoController {
 
         // Sempre retorna 200 para evitar retry infinito do provedor.
         return ResponseEntity.ok(ApiResponse.ok("ignored", "Webhook ignorado por assinatura invalida"));
+    }
+
+    @PostMapping("/validar-desconto")
+    @Operation(summary = "Validar token de desconto", description = "Valida um token JWT de desconto antes do checkout (RN10)")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Validacao de token completada",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidacaoTokenDescontoResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuario nao autenticado")
+    })
+    public ResponseEntity<ApiResponse<ValidacaoTokenDescontoResponse>> validarDesconto(
+            @Valid @RequestBody ValidarTokenDescontoRequest request
+    ) {
+        ValidacaoTokenDescontoResponse validacao = tokenDescontoService.validarToken(request);
+        return ResponseEntity.ok(ApiResponse.ok(validacao, "Validacao de token de desconto concluida"));
     }
 
     private boolean isValidSignature(String signature, String payloadId) {

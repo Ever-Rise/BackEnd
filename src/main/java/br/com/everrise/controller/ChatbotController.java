@@ -39,10 +39,10 @@ public class ChatbotController {
     @PostMapping(path = "/message", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Enviar mensagem e obter resposta em streaming", description = "Envia uma mensagem ao chatbot e recebe a resposta em tempo real via Server-Sent Events (SSE)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Streaming iniciado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Streaming iniciado com sucesso",
                     content = @Content(mediaType = "text/event-stream", schema = @Schema(implementation = SseChunkResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao"),
-            @ApiResponse(responseCode = "401", description = "Usuario nao autenticado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados invalidos no corpo da requisicao"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuario nao autenticado")
     })
     public SseEmitter message(@Valid @RequestBody ChatMessageRequest request) {
         SseEmitter emitter = new SseEmitter(0L);
@@ -69,10 +69,10 @@ public class ChatbotController {
     @GetMapping("/history/{sessionId}")
     @Operation(summary = "Obter historico de conversas", description = "Retorna todo o historico de conversas de uma sessao")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Historico carregado com sucesso",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historico carregado com sucesso",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ChatMessageResponse.class)))),
-            @ApiResponse(responseCode = "404", description = "Sessao nao encontrada"),
-            @ApiResponse(responseCode = "401", description = "Usuario nao autenticado")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Sessao nao encontrada"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuario nao autenticado")
     })
     public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> history(
             @Parameter(description = "ID da sessao de chat", example = "session-123", required = true)
@@ -80,3 +80,4 @@ public class ChatbotController {
         return ResponseEntity.ok(ApiResponse.ok(chatbotService.history(sessionId), "Historico carregado"));
     }
 }
+

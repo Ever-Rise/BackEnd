@@ -14,5 +14,8 @@ public class CheckoutRequest {
     private Long planoId;
 
     private String cupomDesconto;
+
+    private String tokenDesconto;  // RN10: Token JWT com 72h de validade para desconto
 }
+
 

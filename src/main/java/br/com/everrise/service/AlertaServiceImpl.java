@@ -7,7 +7,7 @@ import br.com.everrise.dto.response.AlertaResponse;
 import br.com.everrise.mapper.AlertaMapper;
 import br.com.everrise.repository.AlertaRepository;
 import br.com.everrise.repository.GuinchoRepository;
-import br.com.everrise.security.SecurityUtils;
+import br.com.everrise.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +22,7 @@ public class AlertaServiceImpl implements AlertaService {
     private final AlertaRepository alertaRepository;
     private final GuinchoRepository guinchoRepository;
     private final AlertaMapper alertaMapper;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -48,7 +49,7 @@ public class AlertaServiceImpl implements AlertaService {
 
         alerta.setReconhecido(true);
         alerta.setReconhecidoEm(LocalDateTime.now());
-        alerta.setReconhecidoPor(SecurityUtils.getCurrentUser());
+        alerta.setReconhecidoPor(securityUtils.getCurrentUser());
 
         return alertaMapper.toResponse(alertaRepository.save(alerta));
     }
