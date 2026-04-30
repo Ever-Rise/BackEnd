@@ -1,4 +1,4 @@
-# EVERRISE Backend
+# EVER RISE Backend
 
 Backend do projeto EVERRISE para autenticacao, controle de guinchos, telemetria em tempo real, pedidos/pagamentos e chatbot.
 
