@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(exclude = {"createdAt", "updatedAt"})
 @Entity
 @Table(name = "planos")
 public class Plano extends BaseEntity {

@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import br.com.everrise.domain.enums.ComandoAcao;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +31,7 @@ class GuinchoServiceTest {
 
     @Mock
     private GuinchoRepository guinchoRepository;
+
 
     @Mock
     private GuinchoMapper guinchoMapper;
@@ -55,29 +58,28 @@ class GuinchoServiceTest {
 
     @Test
     void deveRetornarStatusQuandoGuinchoExiste() {
-        GuinchoStatusResponse expected = new GuinchoStatusResponse(1L, GuinchoStatus.PRONTO, 90, 88, false);
-        when(guinchoRepository.findById(1L)).thenReturn(Optional.of(guincho));
+        GuinchoStatusResponse expected = new GuinchoStatusResponse(GuinchoStatus.PRONTO, 90, 88, false, null);
+        when(guinchoRepository.findByIdAndAtivoTrue(1L)).thenReturn(Optional.of(guincho));
         when(guinchoMapper.toStatusResponse(guincho)).thenReturn(expected);
 
-        GuinchoStatusResponse result = guinchoService.findStatus(1L);
+        GuinchoStatusResponse result = guinchoService.findStatusCached(1L);
 
         assertEquals(GuinchoStatus.PRONTO, result.status());
-        assertEquals(1L, result.guinchoId());
-        verify(guinchoRepository).findById(1L);
+        verify(guinchoRepository).findByIdAndAtivoTrue(1L);
     }
 
     @Test
     void deveLancarExcecaoQuandoGuinchoNaoExiste() {
-        when(guinchoRepository.findById(99L)).thenReturn(Optional.empty());
+        when(guinchoRepository.findByIdAndAtivoTrue(99L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> guinchoService.findStatus(99L));
+        assertThrows(ResourceNotFoundException.class, () -> guinchoService.findStatusCached(99L));
         verify(guinchoMapper, never()).toStatusResponse(any());
     }
 
     @Test
     void devePublicarComandoQuandoGuinchoExiste() {
-        ComandoRequest request = new ComandoRequest("FRENTE", 35, "START");
-        when(guinchoRepository.existsById(1L)).thenReturn(true);
+        ComandoRequest request = new ComandoRequest(ComandoAcao.FRENTE, 35, 1);
+        when(guinchoRepository.findByIdAndAtivoTrue(1L)).thenReturn(Optional.of(guincho));
         doNothing().when(mqttService).publishCommand(1L, request);
 
         guinchoService.enviarComando(1L, request);

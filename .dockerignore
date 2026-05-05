@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build and dependencies
+target/
+node_modules/
+dist/
+build/
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Maven
+.m2/
+maven-eclipse.xml
+.classpath
+.project
+.settings/
+
+# Gradle
+.gradle/
+build/
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Documentation (optional - keep if needed)
+# docs/
+
+# README and license (keep these)
+# README.md
+# LICENSE
+
