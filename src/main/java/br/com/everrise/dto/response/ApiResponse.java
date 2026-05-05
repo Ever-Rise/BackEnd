@@ -20,5 +20,14 @@ public record ApiResponse<T>(
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .data(null)
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 }
 

@@ -1,6 +1,6 @@
 package br.com.everrise.domain.entity;
 
-import br.com.everrise.domain.enums.TipoPlano;
+import br.com.everrise.domain.entity.Plano;
 import br.com.everrise.domain.enums.UserRole;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,9 +49,8 @@ public class User extends BaseEntity {
     @Builder.Default
     private UserRole role = UserRole.ROLE_USER;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 30)
-    private TipoPlano plano;
+    @Column(name = "plano_id")
+    private Plano plano;
 
     @Column(nullable = false)
     @Builder.Default

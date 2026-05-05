@@ -93,7 +93,8 @@ public class PedidoServiceImpl implements PedidoService {
         if ("approved".equalsIgnoreCase(paymentStatus)) {
             pedido.setStatus(PedidoStatus.PAGO);
             User user = pedido.getUser();
-            user.setPlano(pedido.getPlano().getTipo());
+            // Atualiza o plano do usuario para o plano adquirido
+            user.setPlano(pedido.getPlano());
             userRepository.save(user);
         } else if ("cancelled".equalsIgnoreCase(paymentStatus) || "rejected".equalsIgnoreCase(paymentStatus)) {
             pedido.setStatus(PedidoStatus.CANCELADO);

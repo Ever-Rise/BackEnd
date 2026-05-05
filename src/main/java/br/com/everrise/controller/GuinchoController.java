@@ -80,7 +80,7 @@ public class GuinchoController {
         try {
             ownershipService.validarAcessoGuincho(id);
             return ResponseEntity.ok(ApiResponse.ok(guinchoService.findStatusCached(id), "Status carregado"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }
@@ -106,7 +106,7 @@ public class GuinchoController {
         try {
             ownershipService.validarAcessoGuincho(id);
             return ResponseEntity.ok(ApiResponse.ok(guinchoService.findTelemetry(id, limit, from, to), "Telemetria carregada"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }
@@ -140,7 +140,7 @@ public class GuinchoController {
         try {
             ownershipService.validarAcessoGuincho(id);
             return ResponseEntity.ok(ApiResponse.ok(guinchoService.updateApelido(id, request), "Guincho atualizado"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }
@@ -159,7 +159,7 @@ public class GuinchoController {
             ownershipService.validarAcessoGuincho(id);
             guinchoService.softDelete(id);
             return ResponseEntity.ok(ApiResponse.ok(null, "Guincho desativado com sucesso"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }

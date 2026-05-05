@@ -51,7 +51,7 @@ public class ControleController {
             ownershipService.validarAcessoGuincho(id);
             ComandoPublicadoResponse response = guinchoService.enviarComando(id, request);
             return ResponseEntity.accepted().body(ApiResponse.ok(response, "Comando publicado no broker MQTT"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }
@@ -85,7 +85,7 @@ public class ControleController {
             ownershipService.validarAcessoGuincho(id);
             WebSocketEventResponse event = guinchoService.ativarEmergencia(id);
             return ResponseEntity.ok(ApiResponse.ok(event, "Emergencia ativada"));
-        } catch (IllegalAccessException e) {
+        } catch (SecurityException e) {
             return ResponseEntity.status(403).body(ApiResponse.error("Acesso negado"));
         }
     }

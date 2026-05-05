@@ -55,11 +55,11 @@ public class ResourceOwnershipService {
     /**
      * Valida acesso a um recurso, lançando exceção se não autorizado
      * @param guinchoId ID do guincho
-     * @throws IllegalAccessException se acesso negado
+     * @throws SecurityException se acesso negado
      */
-    public void validarAcessoGuincho(Long guinchoId) throws IllegalAccessException {
+    public void validarAcessoGuincho(Long guinchoId) {
         if (!usuarioPodeAcessarGuincho(guinchoId)) {
-            throw new IllegalAccessException(
+            throw new SecurityException(
                 "Você não tem permissão para acessar este recurso"
             );
         }
