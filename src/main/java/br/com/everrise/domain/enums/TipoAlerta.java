@@ -1,15 +1,24 @@
 package br.com.everrise.domain.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
+@Getter
 public enum TipoAlerta {
-    OBSTACULO("Obstáculo Detectado"),
-    BATERIA_BAIXA("Bateria Baixa"),
-    CONEXAO_FRACA("Conexão Fraca"),
-    ANOMALIA("Anomalia Detectada"),
-    SOBRECARGA("Sobrecarga Detectada"),
-    DESCONEXAO("Desconexão"),
-    TIMEOUT("Timeout de Sessão");
+    SOBRECARGA("Sobrecarga"),
+    OBSTACULO("Obstáculo"),
+    CONEXAO("Conexão"),
+    BATERIA("Bateria");
+
+    public static final TipoAlerta BATERIA_BAIXA = BATERIA;
+
+    public static final TipoAlerta CONEXAO_FRACA = CONEXAO;
+
+    public static final TipoAlerta ANOMALIA = SOBRECARGA;
+
+    public static final TipoAlerta DESCONEXAO = CONEXAO;
+
+    public static final TipoAlerta TIMEOUT = CONEXAO;
 
     private final String descricao;
 
@@ -17,9 +26,6 @@ public enum TipoAlerta {
         this.descricao = descricao;
     }
 
-    public String getDescricao() {
-        return descricao;
-    }
 
     @JsonValue
     public String value() {
