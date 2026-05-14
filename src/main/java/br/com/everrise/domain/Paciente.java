@@ -1,17 +1,22 @@
 package br.com.everrise.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @SuperBuilder
@@ -32,6 +37,10 @@ public class Paciente extends Usuario {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String observacoes;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Familiar> familiares = new ArrayList<>();
 }
 
 
