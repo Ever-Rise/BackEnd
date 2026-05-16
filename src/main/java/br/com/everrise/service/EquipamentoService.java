@@ -43,6 +43,9 @@ public class EquipamentoService {
         if (equipamentoRepository.existsByIdentificador(equipamento.getIdentificador())) {
             throw new RuntimeException("Identificador do equipamento já cadastrado");
         }
+        if (equipamento.getStatus() == null) {
+            equipamento.setStatus(StatusEquipamento.DESLIGADO);
+        }
         if (equipamento.getUltimaAtualizacao() == null) {
             equipamento.setUltimaAtualizacao(LocalDateTime.now());
         }

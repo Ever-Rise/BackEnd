@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     public br.com.everrise.dto.response.AuthResponse login(br.com.everrise.dto.request.LoginRequest request) {
-        String token = login(request.getEmail(), request.getPassword());
+        String token = login(request.email(), request.senha());
         return br.com.everrise.dto.response.AuthResponse.builder()
                 .token(token)
                 .expiresIn(expiration)

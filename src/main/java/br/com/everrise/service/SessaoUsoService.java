@@ -2,6 +2,7 @@ package br.com.everrise.service;
 
 import br.com.everrise.domain.Paciente;
 import br.com.everrise.domain.SessaoUso;
+import br.com.everrise.domain.Usuario;
 import br.com.everrise.domain.enums.StatusEquipamento;
 import br.com.everrise.domain.enums.StatusSessao;
 import br.com.everrise.repository.SessaoUsoRepository;
@@ -19,6 +20,8 @@ public class SessaoUsoService {
 
     private final SessaoUsoRepository sessaoUsoRepository;
     private final EquipamentoService equipamentoService;
+    private final UsuarioService usuarioService;
+    private final PacienteService pacienteService;
 
     @Transactional
     public SessaoUso iniciar(Long equipamentoId, Long operadorId, Long pacienteId) {
@@ -30,10 +33,13 @@ public class SessaoUsoService {
             throw new RuntimeException("Já existe uma sessão ativa para este equipamento");
         }
 
+        Usuario operador = usuarioService.buscarPorId(operadorId);
+        Paciente paciente = pacienteId == null ? null : pacienteService.buscarPorId(pacienteId);
+
         SessaoUso sessao = SessaoUso.builder()
                 .equipamento(equipamento)
-                .operador(Paciente.builder().id(operadorId).build())
-                .paciente(pacienteId == null ? null : Paciente.builder().id(pacienteId).build())
+                .operador(operador)
+                .paciente(paciente)
                 .status(StatusSessao.ATIVA)
                 .iniciadaEm(LocalDateTime.now())
                 .build();

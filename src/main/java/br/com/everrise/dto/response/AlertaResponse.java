@@ -1,26 +1,29 @@
 package br.com.everrise.dto.response;
 
-import br.com.everrise.domain.enums.TipoAlerta;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import br.com.everrise.domain.Alerta;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AlertaResponse {
-
-    private Long id;
-    private Long guinchoId;
-    private String guinchoApelido;
-    private TipoAlerta tipo;
-    private String descricao;
-    private Boolean reconhecido;
-    private LocalDateTime criadoEm;
-    private LocalDateTime reconhecidoEm;
-    private String reconhecidoPorNome;
+public record AlertaResponse(
+        Long id,
+        String tipo,
+        String descricao,
+        LocalDateTime geradoEm,
+        Boolean reconhecido,
+        LocalDateTime reconhecidoEm,
+        Long reconhecidoPor,
+        Long equipamentoId
+) {
+    public static AlertaResponse from(Alerta a) {
+        return new AlertaResponse(
+                a.getId(),
+                a.getTipo() == null ? null : a.getTipo().name(),
+                a.getDescricao(),
+                a.getGeradoEm(),
+                a.getReconhecido(),
+                a.getReconhecidoEm(),
+                a.getReconhecidoPor(),
+                a.getEquipamento() == null ? null : a.getEquipamento().getId()
+        );
+    }
 }

@@ -3,6 +3,7 @@ package br.com.everrise.service;
 import br.com.everrise.domain.ChatMensagem;
 import br.com.everrise.domain.ChatSessao;
 import br.com.everrise.domain.Paciente;
+import br.com.everrise.domain.Usuario;
 import br.com.everrise.domain.enums.RemetenteMensagem;
 import br.com.everrise.repository.ChatMensagemRepository;
 import br.com.everrise.repository.ChatSessaoRepository;
@@ -20,13 +21,15 @@ public class ChatService {
     private final ChatSessaoRepository chatSessaoRepository;
     private final ChatMensagemRepository chatMensagemRepository;
     private final PacienteService pacienteService;
+    private final UsuarioService usuarioService;
 
     @Transactional
     public ChatSessao abrirSessao(Long pacienteId, Long usuarioId) {
         Paciente paciente = pacienteService.buscarPorId(pacienteId);
+        Usuario usuario = usuarioId == null ? null : usuarioService.buscarPorId(usuarioId);
         ChatSessao chatSessao = ChatSessao.builder()
                 .paciente(paciente)
-                .usuario(usuarioId == null ? null : Paciente.builder().id(usuarioId).build())
+                .usuario(usuario)
                 .criadaEm(LocalDateTime.now())
                 .build();
         return chatSessaoRepository.save(chatSessao);

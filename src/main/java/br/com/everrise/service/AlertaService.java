@@ -88,14 +88,15 @@ public class AlertaService {
     }
 
     private br.com.everrise.dto.response.AlertaResponse toResponse(Alerta alerta) {
-        return br.com.everrise.dto.response.AlertaResponse.builder()
-                .id(alerta.getId())
-                .guinchoId(alerta.getEquipamento() == null ? null : alerta.getEquipamento().getId())
-                .tipo(alerta.getTipo())
-                .descricao(alerta.getDescricao())
-                .reconhecido(alerta.getReconhecido())
-                .criadoEm(alerta.getGeradoEm())
-                .reconhecidoEm(alerta.getReconhecidoEm())
-                .build();
+        return new br.com.everrise.dto.response.AlertaResponse(
+                alerta.getId(),
+                alerta.getTipo() == null ? null : alerta.getTipo().name(),
+                alerta.getDescricao(),
+                alerta.getGeradoEm(),
+                alerta.getReconhecido(),
+                alerta.getReconhecidoEm(),
+                alerta.getReconhecidoPor(),
+                alerta.getEquipamento() == null ? null : alerta.getEquipamento().getId()
+        );
     }
 }
