@@ -5,6 +5,8 @@ spring:
     default: dev
   jpa:
     open-in-view: false
+  main:
+    allow-circular-references: true
 
 server:
   port: 8080
@@ -17,5 +19,10 @@ springdoc:
     tags-sorter: alpha
   api-docs:
     path: /api-docs
+
+app:
+  jwt:
+    secret: "your-secret-key-change-this-in-production-environment-please"
+    expiration: 3600000
 
 

@@ -3,6 +3,7 @@ package br.com.everrise.config;
 import br.com.everrise.security.JwtAuthFilter;
 import br.com.everrise.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,8 +27,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UsuarioService usuarioService;
-    private final JwtAuthFilter jwtAuthFilter;
+    private final ObjectProvider<UsuarioService> usuarioService;
+    private final ObjectProvider<JwtAuthFilter> jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
@@ -47,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/tokens/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/v1/pagamentos/webhook").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter.getObject(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -64,7 +65,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(usuarioService);
+        provider.setUserDetailsService(usuarioService.getObject());
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }

@@ -3,4 +3,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
 
+app:
+  jwt:
+    secret: "${JWT_SECRET:your-secret-key-change-this-in-production-environment-please}"
+    expiration: 3600000
+
 

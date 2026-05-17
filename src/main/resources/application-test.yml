@@ -10,4 +10,9 @@ spring:
     enabled: false
       enabled: false
 
+app:
+  jwt:
+    secret: "test-secret-key-for-testing-purposes"
+    expiration: 3600000
+
 
