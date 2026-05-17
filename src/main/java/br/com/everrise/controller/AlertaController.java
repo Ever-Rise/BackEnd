@@ -1,61 +1,51 @@
 package br.com.everrise.controller;
 
+import br.com.everrise.dto.request.ReconhecerAlertaRequest;
 import br.com.everrise.dto.response.AlertaResponse;
-import br.com.everrise.dto.response.ApiResponse;
 import br.com.everrise.service.AlertaService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/alertas")
+@RequestMapping("/alertas")
 @RequiredArgsConstructor
-@Tag(name = "Alertas", description = "Gestão de alertas de guinchos")
+@Tag(name = "Alertas")
 public class AlertaController {
 
     private final AlertaService alertaService;
 
-    @GetMapping("/guincho/{guinchoId}/pendentes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<List<AlertaResponse>>> findPendentes(@PathVariable Long guinchoId) {
-        return ResponseEntity.ok(
-            ApiResponse.ok(alertaService.findPendentes(guinchoId), "Alertas pendentes carregados")
-        );
+    @GetMapping
+    @Operation(summary = "Listar alertas não reconhecidos")
+    public ResponseEntity<List<AlertaResponse>> listarNaoReconhecidos() {
+        return ResponseEntity.ok(alertaService.listarNaoReconhecidos().stream().map(AlertaResponse::from).toList());
     }
 
-    @GetMapping("/guincho/{guinchoId}/historico")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<List<AlertaResponse>>> findHistorico(
-        @PathVariable Long guinchoId,
-        @RequestParam(defaultValue = "50") int limit
-    ) {
-        return ResponseEntity.ok(
-            ApiResponse.ok(alertaService.findHistorico(guinchoId, limit), "Histórico de alertas carregado")
-        );
+    @GetMapping("/equipamento/{id}")
+    @Operation(summary = "Listar alertas por equipamento")
+    public ResponseEntity<List<AlertaResponse>> listarPorEquipamento(@PathVariable Long id) {
+        return ResponseEntity.ok(alertaService.listarPorEquipamento(id).stream().map(AlertaResponse::from).toList());
     }
 
-    @GetMapping("/{alertaId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<AlertaResponse>> findById(@PathVariable Long alertaId) {
-        return ResponseEntity.ok(
-            ApiResponse.ok(alertaService.findById(alertaId), "Alerta carregado")
-        );
+    @GetMapping("/equipamento/{id}/ativos")
+    @Operation(summary = "Listar alertas não reconhecidos por equipamento")
+    public ResponseEntity<List<AlertaResponse>> listarNaoReconhecidosPorEquipamento(@PathVariable Long id) {
+        return ResponseEntity.ok(alertaService.listarNaoReconhecidosPorEquipamento(id).stream().map(AlertaResponse::from).toList());
     }
 
-    @PatchMapping("/{alertaId}/reconhecer")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<ApiResponse<AlertaResponse>> reconhecer(@PathVariable Long alertaId) {
-        return ResponseEntity.ok(
-            ApiResponse.ok(alertaService.reconhecer(alertaId), "Alerta reconhecido")
-        );
+    @PatchMapping("/{id}/reconhecer")
+    @Operation(summary = "Reconhecer alerta")
+    public ResponseEntity<AlertaResponse> reconhecer(@PathVariable Long id, @Valid @RequestBody ReconhecerAlertaRequest request) {
+        return ResponseEntity.ok(AlertaResponse.from(alertaService.reconhecer(id, request.usuarioId())));
     }
 }
