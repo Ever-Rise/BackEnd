@@ -24,6 +24,4 @@ public class OpenApiConfig {
                                 .name("Apache 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")));
     }
-}git status
-git add .
-git commit -m "chore: additional fixes for backend/docker setup"
+}
