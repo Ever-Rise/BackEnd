@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/sessoes/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
+                        .requestMatchers("/usuarios/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/chat/**").authenticated()
                         .requestMatchers("/tokens/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/v1/pagamentos/webhook").permitAll()
