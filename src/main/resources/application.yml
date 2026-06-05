@@ -1,15 +1,57 @@
+## application.yml - environment-friendly configuration
+
 spring:
   application:
     name: everrise-backend
   profiles:
-    default: dev
+    # Allow overriding active profile via SPRING_PROFILES_ACTIVE; default to dev
+    default: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # JPA / Hibernate
   jpa:
     open-in-view: false
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
   main:
     allow-circular-references: true
 
+  # Datasource using standardized environment variables with sensible local fallbacks
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:everrise_dev}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    # driver-class-name omitted to allow Spring Boot to auto-detect from JDBC URL
+    hikari:
+      # Wait up to 60000 ms (60s) for the DB to become available before failing application startup
+      initialization-fail-timeout: 60000
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
+      minimum-idle: ${HIKARI_MIN_IDLE:2}
+      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:30000}
+      validation-timeout: ${HIKARI_VALIDATION_TIMEOUT:5000}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:600000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
+
+  # Redis configuration using standardized env vars (use spring.data.redis to match Spring conventions)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT:2000}
+      lettuce:
+        pool:
+          max-active: ${REDIS_MAX_ACTIVE:8}
+          max-idle: ${REDIS_MAX_IDLE:8}
+          min-idle: ${REDIS_MIN_IDLE:0}
+          max-wait: ${REDIS_MAX_WAIT:1000}
+
 server:
-  port: 8080
+  # Use port injected by cloud platforms like Railway (PORT). Fallback to 8080 for local dev.
+  port: ${PORT:8080}
 
 springdoc:
   swagger-ui:
