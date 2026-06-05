@@ -2,7 +2,8 @@ package br.com.everrise.config;
 
 import br.com.everrise.security.JwtAuthFilter;
 import br.com.everrise.service.UsuarioService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,12 +24,20 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UsuarioService usuarioService;
-    private final JwtAuthFilter jwtAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
+
+    @Lazy
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(@Lazy UsuarioService usuarioService,
+                          CorsConfigurationSource corsConfigurationSource) {
+        this.usuarioService = usuarioService;
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,10 +48,11 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs", "/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/sessoes/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
+                        .requestMatchers("/usuarios/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/chat/**").authenticated()
                         .requestMatchers("/tokens/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/v1/pagamentos/webhook").permitAll()
@@ -62,7 +72,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(usuarioService);
         provider.setPasswordEncoder(passwordEncoder());
