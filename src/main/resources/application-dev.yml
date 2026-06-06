@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/everrise_dev?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:everrise_dev}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: everrise
-    password: everrise123
+    username: ${DB_USER:everrise}
+    password: ${DB_PASSWORD:everrise123}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -18,16 +18,27 @@ spring:
 
 app:
   jwt:
-    secret: "your-secret-key-change-this-in-production-environment-please"
+    secret: ${JWT_SECRET:dev-secret-key-for-testing-only}
     expiration: 3600000
     refresh-expiration: 604800000
   mqtt:
     topic:
       command: "everrise/equipamento/{id}/commands"
       telemetry: "everrise/equipamento/{id}/telemetry"
+  cors:
+    allowed-origins: ${APP_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,https://everrise.com.br,https://www.everrise.com.br}
 
 mqtt:
   enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
 
 springdoc:
   api-docs:
@@ -35,5 +46,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
   packages-to-scan: br.com.everrise.controller
+
+
 
 

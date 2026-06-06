@@ -53,6 +53,15 @@ server:
   # Use port injected by cloud platforms like Railway (PORT). Fallback to 8080 for local dev.
   port: ${PORT:8080}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 springdoc:
   swagger-ui:
     enabled: true
@@ -64,7 +73,9 @@ springdoc:
 
 app:
   jwt:
-    secret: "your-secret-key-change-this-in-production-environment-please"
+    secret: ${JWT_SECRET:your-secret-key-change-this-in-production-environment-please}
     expiration: 3600000
+  cors:
+    allowed-origins: ${APP_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,https://everrise.com.br,https://www.everrise.com.br}
 
 

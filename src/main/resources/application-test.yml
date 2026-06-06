@@ -8,11 +8,13 @@ spring:
       ddl-auto: create-drop
   flyway:
     enabled: false
-      enabled: false
 
 app:
   jwt:
     secret: "test-secret-key-for-testing-purposes"
     expiration: 3600000
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:3000
+
 
 

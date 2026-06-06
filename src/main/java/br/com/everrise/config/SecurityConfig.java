@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -47,8 +48,11 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow CORS preflight requests
+                        .requestMatchers("/").permitAll() // Allow health check on root path
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs", "/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/actuator/**").permitAll() // Allow actuator health endpoints
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/sessoes/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
                         .requestMatchers("/alertas/**").hasAnyRole("ADMIN", "OPERADOR", "SUPER_ADMIN")
@@ -79,4 +83,6 @@ public class SecurityConfig {
         return provider;
     }
 }
+
+
 
