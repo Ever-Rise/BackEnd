@@ -62,6 +62,12 @@ data/
 uploads/
 storage/
 
+# Nginx certbot (dynamically generated certificates)
+nginx/certbot/conf/*
+!nginx/certbot/conf/.gitkeep
+nginx/certbot/www/*
+!nginx/certbot/www/.gitkeep
+
 # Coverage and reports
 coverage/
 *.lcov

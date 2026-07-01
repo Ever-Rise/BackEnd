@@ -216,8 +216,43 @@ src/main/java/br/com/everrise
 └── util
 ```
 
+## Deploy em Produção (DigitalOcean Droplet)
+
+Para deploy em produção, a aplicação usa **Docker Compose** com **Nginx** (com HTTPS via Let's Encrypt) na frente, **MySQL 8**, **Redis 7** e **Certbot** para renovação automática de certificados SSL.
+
+### Preparação rápida
+
+1. Copie `.env.example` para `.env` na raiz do projeto:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Preencha todas as senhas e domínio no `.env`. Gere senhas fortes com:
+   ```bash
+   openssl rand -base64 32
+   ```
+
+3. Ajuste o domínio real em `nginx/conf.d/everrise.conf` (troque `SEU_DOMINIO_AQUI`).
+
+4. Validar que o Actuator `/actuator/health` está acessível sem autenticação (essencial para healthcheck do Docker):
+   - A rota já está liberada em `SecurityConfig.java` (linha 55)
+   - Se adicionar novas dependências, rebuild com `--no-cache`:
+     ```bash
+     docker compose -f docker-compose.prod.yml build --no-cache app
+     ```
+
+Para instruções detalhadas, veja `DEPLOY.md`.
+
+### Tecnologias de produção
+
+- **Nginx**: proxy reverso com SSL/TLS via Let's Encryptcanal de renovação automática a cada 12h
+- **Certbot**: gerenciamento automático de certificados
+- **Docker Compose**: orquestração de serviços
+- **Volumes**: MySQL e Redis persistem dados em volumes Docker
+
 ## Documentação complementar
 
+- `DEPLOY.md` — passo a passo completo para deploy em Droplet DigitalOcean
 - `docs/manual-arquitetura.md` — visão arquitetural detalhada;
 - `docs/manual-api.md` — contratos e endpoints da API;
 - `docs/manual-funcionamento-fluxos.md` — fluxos de negócio e operação;
